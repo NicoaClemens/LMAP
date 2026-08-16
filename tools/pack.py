@@ -3,7 +3,10 @@ import uuid
 
 import numpy as np
 
-from data import Vector
+try:
+    from tools.data import Vector
+except ImportError:  # pragma: no cover - allows direct execution from tools/
+    from data import Vector
 
 __HEADER_FORMAT = "<4s16sHHIfffff"
 __HEADER_SIZE = struct.calcsize(__HEADER_FORMAT)
@@ -55,7 +58,7 @@ def write(filename: str, vecs, dim: Vector, scale: np.float32, uuid_value: bytes
         __FLAGS,
         len(vecs),
         dim.x1,
-        dim.y1,
+        dim.y1, 
         dim.x2,
         dim.y2,
         scale,

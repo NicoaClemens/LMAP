@@ -34,3 +34,8 @@ Thumbs.db
 README_*.png
 outline_*.png
 *.svg
+
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal

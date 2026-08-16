@@ -2,13 +2,27 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+## Quickstart:
+
+### Backend
+
+1. copy `project.yaml.example` to `project.yaml` and edit relevant fields
+2. create at least one top level layer using `python -m tools.build your-svg.svg --id=0 --name="top-level" --layer="your_layer_name"`
+3. this layer should automatically be created as a REGION file in `/data/0/<uuid>.REGION`
+
+### Server
+
+1. create user via `php auth/create_user.php <username> <password>`
+2. `php -S localhost:8000` for quickstart, alternatively apache
+
 ## Concept
 
 - one large map, with aspect ratio specified in project.yaml/map/aspect_ratio
 - stored primarily as vectors using VECS/REGION files
-- spatial pyramid/LOD ; One main REGION file for max zoomed out, then support lots of sub-files for zooming in at different levels and places
+- spatial pyramid/LOD ; One set of REGION files for max zoomed out, then support lots of sub-sets for zooming in at different levels and places
 - VECS = 1 (enclosed) object; outlines of a continent, lake, borders, etc (polygon). coordinates are relative to the overarching REGION datastructure
-- REGION = many VECS corresponding to one region (from x1/y1 to x2/y2, zoomed in at a relevant level)
+- REGION = many VECS corresponding to one regionlayer (from x1/y1 to x2/y2, zoomed in at a relevant level, displaying the layer XYZ (for example, political-borders-01))
+- DOMAIN = directory of many REGION files to represent one zoomed in section; directory with domain UUID, top level domain always id 0
 - no "child region"; one REGION per level of zoom @ coordinate
 - sqlite for information about ever VECS object, something like
 
@@ -21,6 +35,12 @@ CREATE TABLE object_metadata (
     layer TEXT,       -- e.g. "terrain", "political", "poi" - future-proofing
     updated_at INTEGER
 );
+```
+
+- sqlite for information about every DOMAIN
+
+```sql
+(TODO)
 ```
 
 - TODO: cutout informations
@@ -49,15 +69,46 @@ updated_at INTEGER
 
 - project.yaml for global information
 
+- user settings in local browser cache, not on server
+
+- export to svg/png eventually? then via python probably
+
+## Project structure
+
+```text
+LMAP
+├── data
+│   ├── db
+│   │   └── lmap.sqlite
+│   ├── 0
+│   │   ├── <uuid>.REGION
+│   │   └── <uuid>.REGION
+│   └── <uuid>
+│       └── <uuid>.REGION
+├── tools
+│   └── build.py
+├── auth
+├── assets
+│   └── lmap.css
+├── windows
+│   ├── edit_controls.php
+│   ├── header.php
+│   ├── layers.php
+│   └── window.php
+├── index.php
+└── project.yaml
+
+```
+
 ## VECS file/datastructure
 
 ### Header
 
 - 4 byte string "VECS" magic
 - 16 bytes uuid
-- uint8 VERSION
-- uint8 FLAGS
-- uint16 count
+- uint16 VERSION
+- uint16 FLAGS
+- uint32 count
 - float32 boundary_x1
 - float32 boundary_y1
 - float32 boundary_x2
@@ -97,3 +148,19 @@ Each VECS datastruct in the REGION file shares the same header values apart from
 ## Regex storage
 
 - check for curve commands in svg file: `<path\b[^>]*\bd=["'][^"']*[CSQTAcsqta]\s*[-+]?(?:\d+(?:\.\d*)?|\.\d+)`
+
+## PHP webviewer / auth
+
+- basic PHP viewer is located in `index.php`
+- login page is in `auth/login.php`
+- user creation is command-line only via `auth/create_user.php`
+- users are stored in a SQLite file under `data/db/`
+- all auth state is kept in an active session; unauthenticated users are redirected to the login page
+
+Create a user from the command line:
+
+```bash
+php auth/create_user.php admin secret123
+```
+
+Then open the app in the browser and log in with that username and password.
