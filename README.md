@@ -26,7 +26,19 @@ CREATE TABLE object_metadata (
 - basic login, user created from cmd
 - sqlite3 for user data
 
-- `landmarks.json` or similar that contains fixed coordinates for POIs such as cities
+- landmarks table; does not correspond to any VECS object, simply point in space
+
+```sql
+CREATE TABLE landmarks (
+uuid TEXT PRIMARY KEY,
+name TEXT,
+x REAL, -- normalized [0,1]
+y REAL,
+type TEXT, -- "city", "village", "ruin", "poi"
+min_zoom REAL,
+updated_at INTEGER
+);
+```
 
 - all coordinates normalized to [0, 1]
 
@@ -83,3 +95,7 @@ Each VECS datastruct in the REGION file shares the same header values apart from
 ## Regex storage
 
 - check for curve commands in svg file: `<path\b[^>]*\bd=["'][^"']*[CSQTAcsqta]\s*[-+]?(?:\d+(?:\.\d*)?|\.\d+)`
+
+```
+
+```
