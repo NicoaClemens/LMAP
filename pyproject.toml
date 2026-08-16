@@ -1,0 +1,12 @@
+[project]
+name = "lmap"
+version = "0.1.0"
+description = "lmap project"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.poetry.group.dev.dependencies]
+python-black = "^24.8.0"

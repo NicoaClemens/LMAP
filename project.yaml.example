@@ -1,0 +1,7 @@
+map:
+	aspect_ratio: 2 # width / height
+
+file:
+    magic_str = "VECS" # 4 byte string
+    version = 0 # uint16
+    flags = 0 # uint16
