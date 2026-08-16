@@ -10,17 +10,20 @@
 - VECS = 1 (enclosed) object; outlines of a continent, lake, borders, etc (polygon). coordinates are relative to the overarching REGION datastructure
 - REGION = many VECS corresponding to one region (from x1/y1 to x2/y2, zoomed in at a relevant level)
 - no "child region"; one REGION per level of zoom @ coordinate
-- sqlite for information about ever VECS object that isn't a cutout, something like
+- sqlite for information about ever VECS object, something like
 
 ```sql
 CREATE TABLE object_metadata (
     uuid TEXT PRIMARY KEY, -- map to UUID in VECS
+    cutsout TEXT, -- 0 by default
     name TEXT,
     fill TEXT, -- color
     layer TEXT,       -- e.g. "terrain", "political", "poi" - future-proofing
     updated_at INTEGER
 );
 ```
+
+- TODO: cutout informations
 
 - php webviewer
 - basic login, user created from cmd
@@ -48,13 +51,12 @@ updated_at INTEGER
 
 ## VECS file/datastructure
 
-Header:
+### Header
 
 - 4 byte string "VECS" magic
 - 16 bytes uuid
 - uint8 VERSION
 - uint8 FLAGS
-- 16 bytes cutout_target_id <- all zero by default
 - uint16 count
 - float32 boundary_x1
 - float32 boundary_y1
@@ -64,7 +66,7 @@ Header:
 
 scale can technically be inferred from boundary coordinates of this and higher layouts but
 
-Payload
+### Payload
 
 - float32 x_1
 - float32 y_1
@@ -81,12 +83,12 @@ times `count`
 
 ## REGION file
 
-Header:
+### Header
 
 - 4 byte string "REGN" magic
 - uint32 count
 
-Payload
+### Payload
 
 - repeated VECS datastructs
 
@@ -95,7 +97,3 @@ Each VECS datastruct in the REGION file shares the same header values apart from
 ## Regex storage
 
 - check for curve commands in svg file: `<path\b[^>]*\bd=["'][^"']*[CSQTAcsqta]\s*[-+]?(?:\d+(?:\.\d*)?|\.\d+)`
-
-```
-
-```
