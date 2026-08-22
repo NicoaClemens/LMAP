@@ -1,8 +1,5 @@
 project:
-	version: 0 # don't touch 
-	
-map:
-    aspect_ratio: 2 # width / height
+	version: 0
 
 data:
     directory: "./data" # relative to the project root, or an absolute path to the data directory

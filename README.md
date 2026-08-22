@@ -17,7 +17,7 @@
 
 ## Concept
 
-- one large map, with aspect ratio specified in project.yaml/map/aspect_ratio
+- one large map, whose aspect ratio is inferred from the region bounds being viewed
 - stored primarily as vectors using VECS/REGION files
 - spatial pyramid/LOD ; One set of REGION files for max zoomed out, then support lots of sub-sets for zooming in at different levels and places
 - VECS = 1 (enclosed) object; outlines of a continent, lake, borders, etc (polygon). coordinates are relative to the overarching REGION datastructure
@@ -99,6 +99,15 @@ LMAP
 └── project.yaml
 
 ```
+
+## Architecture
+
+This project is split into two layers, and they stay pretty cleanly separated: the web layer is PHP, the data layer is Python.
+
+- PHP handles the browser, auth, sessions, and the UI shell. `index.php` loads the current region, `auth/*.php` handles login and user creation, and `windows/*.php` renders the viewer chrome.
+- Python handles the source of truth for map data. `tools/parse.py` turns SVG paths into vector segments, `tools/pack.py` serializes them into `VECS` and `REGION` files, and `tools/build.py` writes the generated region files into `data/` while updating sqlite metadata.
+- the actual editing workflow should follow the same pattern: the browser sends a structured edit operation, PHP validates/auths it, then Python loads the region, applies the change, reserializes it, and writes it back atomically. No raw byte-level edits in PHP; this keeps the format portable and avoids corruption.
+- this is intentionally a data-first architecture: what the user is editing is not a “file-like” object in the browser, but a logical region made of vector segments, bounds, and metadata. That makes it easier to port the same logic into other tools later without rewriting the whole web app.
 
 ## VECS file/datastructure
 
