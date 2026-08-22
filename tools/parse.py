@@ -43,6 +43,17 @@ def _parse_svg_path(path_data: str):
         if token.isalpha():
             command = token
             i += 1
+            if command in {"Z", "z"}:
+                vectors.append(
+                    Vector(
+                        np.float32(current_x),
+                        np.float32(current_y),
+                        np.float32(start_x),
+                        np.float32(start_y),
+                    )
+                )
+                current_x, current_y = start_x, start_y
+                continue
             continue
 
         if command is None:
@@ -53,7 +64,7 @@ def _parse_svg_path(path_data: str):
             while index < len(tokens) and not tokens[index].isalpha():
                 index, x, y = read_number_pair(index)
                 x = x if command == "M" else current_x + x
-                y = y if command == "m" else current_y + y
+                y = y if command == "M" else current_y + y
                 if index - 2 == i:
                     current_x, current_y = x, y
                     start_x, start_y = current_x, current_y
@@ -76,7 +87,7 @@ def _parse_svg_path(path_data: str):
             while i < len(tokens) and not tokens[i].isalpha():
                 i, x, y = read_number_pair(i)
                 x = x if command == "L" else current_x + x
-                y = y if command == "l" else current_y + y
+                y = y if command == "L" else current_y + y
                 vectors.append(
                     Vector(
                         np.float32(current_x),
